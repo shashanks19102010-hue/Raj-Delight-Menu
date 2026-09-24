@@ -501,3 +501,152 @@ img { display: block; max-width: 100%; }
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Final menu-only composition: signature imagery + the original Raj Delight price-list rhythm. */
+.signature__rail{
+  grid-auto-columns:minmax(250px, 1fr);
+}
+.sigCard{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:0;
+  overflow:hidden;
+  text-align:left;
+  color:var(--ink);
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 16px 36px rgba(29,20,11,.06);
+  transition:transform .35s cubic-bezier(.16,.8,.2,1), box-shadow .35s ease, border-color .35s ease;
+}
+.sigCard:hover{
+  transform:translateY(-7px);
+  box-shadow:0 24px 54px rgba(29,20,11,.12);
+  border-color:color-mix(in srgb,var(--gold) 48%,var(--line));
+}
+.sigCard .dishPhoto{height:195px}
+.sigCard .dishPhoto img{opacity:1}
+.sigCard > div:last-child{padding:15px 16px 17px}
+.sigCard small{font-size:9px}
+.sigCard strong{font-size:18px;line-height:1.12}
+.sigCard span{color:var(--ink);font-weight:800}
+
+.menuList--lines{padding-top:22px}
+.fullMenuLines,.filteredLines{display:grid;gap:20px}
+.menuChapter{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 10px 26px rgba(28,18,8,.04);
+  animation:menuChapterIn .65s cubic-bezier(.16,.84,.2,1) both;
+  animation-delay:var(--delay,0ms);
+}
+.menuChapter__head{
+  display:grid;
+  grid-template-columns:44px 1fr auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  padding:18px 20px;
+  border:0;
+  border-bottom:1px solid var(--line);
+  background:
+    linear-gradient(180deg,color-mix(in srgb,var(--gold) 7%,var(--surface)),var(--surface));
+  color:var(--ink);
+  text-align:left;
+}
+.menuChapter__head span{
+  color:var(--gold);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+.menuChapter__head strong{
+  font-family:var(--serif);
+  font-size:clamp(23px,4vw,34px);
+  line-height:1;
+  letter-spacing:-.025em;
+}
+.menuChapter__head b{
+  min-width:34px;
+  height:28px;
+  padding:0 8px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--gold) 35%,var(--line));
+  color:var(--muted);
+  font-size:9px;
+  letter-spacing:.08em;
+}
+.menuChapter__items{
+  padding:4px 20px 6px;
+}
+.menuLine{
+  min-height:49px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(32px,1fr) auto;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid color-mix(in srgb,var(--line) 76%,transparent);
+  animation:menuLineIn .45s ease both;
+  animation-delay:var(--delay,0ms);
+}
+.menuLine:last-child{border-bottom:0}
+.menuLine__name{
+  color:var(--ink);
+  font-size:14px;
+  line-height:1.25;
+}
+.menuLine i{
+  height:1px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--line) 75%,transparent),color-mix(in srgb,var(--gold) 30%,transparent));
+}
+.menuLine__price{
+  min-width:64px;
+  justify-self:end;
+  color:var(--ink);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.01em;
+}
+.menuLine__price.is-empty{color:var(--muted)}
+.menuChapter:hover .menuLine__price:not(.is-empty){
+  color:var(--gold);
+}
+@keyframes menuChapterIn{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:none}
+}
+@keyframes menuLineIn{
+  from{opacity:0;transform:translateX(8px)}
+  to{opacity:1;transform:none}
+}
+@media(max-width:820px){
+  .signature__rail{grid-auto-columns:minmax(240px,78vw)}
+  .menuChapter__head{padding:17px 15px}
+  .menuChapter__items{padding:3px 15px 5px}
+  .menuLine{grid-template-columns:minmax(0,1fr) minmax(18px,.6fr) auto;gap:8px;min-height:47px}
+  .menuLine__name{font-size:13px}
+  .menuLine__price{min-width:58px;font-size:11px}
+}
+@media(max-width:600px){
+  .signature{padding-top:8px}
+  .sigCard .dishPhoto{height:176px}
+  .sigCard > div:last-child{padding:13px 14px 15px}
+  .sigCard strong{font-size:16px}
+  .menuList--lines{padding-top:18px}
+  .fullMenuLines,.filteredLines{gap:14px}
+  .menuChapter{border-radius:17px}
+  .menuChapter__head{grid-template-columns:34px 1fr auto;padding:15px 13px}
+  .menuChapter__head strong{font-size:24px}
+  .menuChapter__head b{min-width:31px;height:25px;font-size:8px}
+  .menuLine{min-height:44px;grid-template-columns:minmax(0,1fr) minmax(14px,.35fr) auto}
+  .menuLine__name{font-size:12px}
+  .menuLine__price{min-width:48px;font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  .sigCard,.menuChapter,.menuLine{animation:none!important;transition:none}
+}
