@@ -176,7 +176,12 @@ export function MenuExperience(){
             {visible.map((item,index)=>{
               const price=getMenuPrice(item.category,item.name);
               return <article className="dishCard" key={`${item.category}-${item.name}`}>
-                <div className="dishCard__media"><img src={imageFor(item.category,item.name,index)} alt={item.name} loading="lazy"/><span>{item.category}</span></div>
+                <div className="dishCard__media"><img src={imageFor(item.category,item.name,index)} alt={item.name} loading="lazy" decoding="async" onError={(event) => {
+  const target = event.currentTarget;
+  if (target.dataset.fallbackApplied) return;
+  target.dataset.fallbackApplied = 'true';
+  target.src = fallback;
+}}/><span>{item.category}</span></div>
                 <div className="dishCard__body"><div><small>{item.category}</small><h2>{item.name}</h2></div><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
               </article>;
             })}
@@ -192,7 +197,12 @@ export function MenuExperience(){
                 {entry.items.map((name,index)=>{
                   const price=getMenuPrice(entry.name,name);
                   return <article className="dishCard" key={`${entry.name}-${name}`} style={{'--delay':`${Math.min(index,14)*18}ms`} as React.CSSProperties}>
-                    <div className="dishCard__media"><img src={imageFor(entry.name,name,index)} alt={name} loading="lazy"/><span>{entry.name}</span></div>
+                    <div className="dishCard__media"><img src={imageFor(entry.name,name,index)} alt={name} loading="lazy" decoding="async" onError={(event) => {
+                      const target = event.currentTarget;
+                      if (target.dataset.fallbackApplied) return;
+                      target.dataset.fallbackApplied = 'true';
+                      target.src = fallback;
+                    }}/><span>{entry.name}</span></div>
                     <div className="dishCard__body"><h3>{name}</h3><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
                   </article>;
                 })}
