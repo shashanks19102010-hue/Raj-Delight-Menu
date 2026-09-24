@@ -8,14 +8,14 @@ import { dishImage } from '@/lib/dish-images';
 const LOGO = 'https://raj-delight-three.vercel.app/grok_1789624913553.jpg';
 
 const SIGNATURE = [
-  ['Tandoori Paneer Tikka', 'Tandoori Station'],
-  ['Paneer Butter Masala', 'Indian Main Course'],
-  ['Dal Makhani (special)', 'Dal Delight'],
-  ['Veg Hyderabadi Biryani (special)', 'Biryani'],
-  ['Masala Dosa', 'South Indian'],
-  ['Raj Delight Delux Thali', 'Special Thali'],
-  ['Oreo Shake', 'Shake It Up'],
-  ['Gulab Jamun (1 Pc)', 'Dessert'],
+  ['Tandoori Paneer Tikka', 'Tandoori Station', 'https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy%2Cf_auto%2Cq_auto%2Cw_1000/FOOD_CATALOG/IMAGES/CMS/2025/6/12/4cd93e62-c01a-4f08-bc19-e3c40e56264d_99b5326e-4138-4947-8357-f86d99e67737.jpg'],
+  ['Paneer Butter Masala', 'Indian Main Course', 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=1000&q=88'],
+  ['Dal Makhani (special)', 'Dal Delight', 'https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy%2Cf_auto%2Cq_auto/FOOD_CATALOG/IMAGES/CMS/2025/11/15/4af3457c-30f5-48e5-b8ad-899027247e69_fe911541-88c3-4454-94e6-98593d80e6e8.jpg'],
+  ['Veg Hyderabadi Biryani (special)', 'Biryani', 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=1000&q=88'],
+  ['Masala Dosa', 'South Indian', 'https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy%2Cf_auto%2Cq_auto%2Cw_1000/ukutkka8iszzwovys2it'],
+  ['Raj Delight Delux Thali', 'Special Thali', 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=1000&q=88'],
+  ['Oreo Shake', 'Shake It Up', 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=1000&q=88'],
+  ['Gulab Jamun (1 Pc)', 'Dessert', 'https://images.unsplash.com/photo-1666190027720-2876c847d78a?auto=format&fit=crop&w=1000&q=88'],
 ];
 
 const QUICK = ['Paneer', 'Dosa', 'Shake', 'Momos', 'Pizza', 'Biryani', 'Dal', 'Thali'];
@@ -87,17 +87,49 @@ function DishPhoto({ category, name, eager = false }: { category: string; name: 
   );
 }
 
-function DishCard({ category, name, index }: { category: string; name: string; index: number }) {
+function SignaturePhoto({ src, name }: { src: string; name: string }) {
+  const [current, setCurrent] = useState(src);
+  return (
+    <div className="dishPhoto">
+      <img
+        src={current}
+        alt={name}
+        loading="eager"
+        decoding="async"
+        onError={() => setCurrent(dishImage('Fallback', name))}
+      />
+      <span className="dishPhoto__glow" />
+    </div>
+  );
+}
+
+function PriceLine({ value }: { value: number | null }) {
+  return <strong className={`menuLine__price${value === null ? ' is-empty' : ''}`}>{value === null ? '—' : `₹${value}`}</strong>;
+}
+
+function MenuLine({ category, name, index }: { category: string; name: string; index: number }) {
   const price = getMenuPrice(category, name);
   return (
-    <article className="dishCard" style={{ '--delay': `${Math.min(index, 10) * 35}ms` } as React.CSSProperties}>
-      <DishPhoto category={category} name={name} />
-      <div className="dishCard__body">
-        <div className="dishCard__title">
-          <small>{category}</small>
-          <h3>{name}</h3>
-        </div>
-        <Price value={price} />
+    <div className="menuLine" style={{ '--delay': `${Math.min(index, 14) * 22}ms` } as React.CSSProperties}>
+      <span className="menuLine__name">{name}</span>
+      <i aria-hidden="true" />
+      <PriceLine value={price} />
+    </div>
+  );
+}
+
+function MenuChapter({ category, names, index }: { category: string; names: string[]; index: number }) {
+  return (
+    <article className="menuChapter">
+      <div className="menuChapter__head">
+        <span>{String(index + 1).padStart(2, '0')}</span>
+        <strong>{category}</strong>
+        <b>{names.length}</b>
+      </div>
+      <div className="menuChapter__items">
+        {names.map((name, itemIndex) => (
+          <MenuLine key={`${category}-${name}`} category={category} name={name} index={itemIndex} />
+        ))}
       </div>
     </article>
   );
@@ -108,7 +140,6 @@ export function MenuExperience() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showTop, setShowTop] = useState(false);
 
@@ -116,7 +147,6 @@ export function MenuExperience() {
     const saved = localStorage.getItem('raj-delight-menu-theme');
     if (saved === 'dark' || saved === 'light') setTheme(saved);
     else if (window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
-    if (window.matchMedia('(max-width: 720px)').matches) setView('grid');
     const timer = window.setTimeout(() => setIntro(false), 2200);
     const onScroll = () => setShowTop(window.scrollY > 640);
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -180,10 +210,7 @@ export function MenuExperience() {
             >
               <Icon name={theme === 'light' ? 'moon' : 'sun'} />
             </button>
-            <button className="viewButton" onClick={() => setView((v) => (v === 'grid' ? 'list' : 'grid'))} aria-label="Toggle layout">
-              <Icon name={view === 'grid' ? 'list' : 'grid'} />
-              <span>{view === 'grid' ? 'List' : 'Grid'}</span>
-            </button>
+
           </div>
         </header>
 
@@ -216,11 +243,11 @@ export function MenuExperience() {
             <h2>Start with these.</h2>
           </div>
           <div className="signature__rail">
-            {SIGNATURE.map(([name, cat], index) => {
+            {SIGNATURE.map(([name, cat, src], index) => {
               const price = getMenuPrice(cat, name);
               return (
                 <button key={name} className="sigCard" onClick={() => setCategory(cat)} style={{ '--delay': `${index * 70}ms` } as React.CSSProperties}>
-                  <DishPhoto category={cat} name={name} eager={index < 4} />
+                  <SignaturePhoto src={src} name={name} />
                   <div>
                     <small>{cat}</small>
                     <strong>{name}</strong>
@@ -270,35 +297,28 @@ export function MenuExperience() {
           </div>
         </section>
 
-        <section id="menu-list" className={`menuList menuList--${view}`}>
+        <section id="menu-list" className="menuList menuList--lines">
           {filtered ? (
-            <div className="filtered">
-              {visible.map((item, index) => (
-                <DishCard key={`${item.category}-${item.name}`} category={item.category} name={item.name} index={index} />
-              ))}
+            <div className="filteredLines">
+              {categories.map((entry) => {
+                const names = visible.filter((item) => item.category === entry.name).map((item) => item.name);
+                if (!names.length) return null;
+                return (
+                  <MenuChapter
+                    key={entry.name}
+                    category={entry.name}
+                    names={names}
+                    index={menuCategories.findIndex((item) => item.name === entry.name)}
+                  />
+                );
+              })}
             </div>
           ) : (
-            menuCategories.map((entry, categoryIndex) => (
-              <section className="categorySection" key={entry.name}>
-                <div className="categoryHead">
-                  <div>
-                    <span>{String(categoryIndex + 1).padStart(2, '0')}</span>
-                    <div>
-                      <p>{entry.items.length} dishes</p>
-                      <h2>{entry.name}</h2>
-                    </div>
-                  </div>
-                  <button onClick={() => setCategory(entry.name)}>
-                    View all <Icon name="arrow" />
-                  </button>
-                </div>
-                <div className="dishGrid">
-                  {entry.items.map((name, index) => (
-                    <DishCard key={`${entry.name}-${name}`} category={entry.name} name={name} index={index} />
-                  ))}
-                </div>
-              </section>
-            ))
+            <div className="fullMenuLines">
+              {menuCategories.map((entry, categoryIndex) => (
+                <MenuChapter key={entry.name} category={entry.name} names={entry.items} index={categoryIndex} />
+              ))}
+            </div>
           )}
         </section>
 
