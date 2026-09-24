@@ -3,285 +3,338 @@
 import { useEffect, useMemo, useState } from 'react';
 import { allMenuItems, menuCategories, menuItemCount } from '@/lib/menu';
 import { getMenuPrice } from '@/lib/menu-prices';
+import { dishImage } from '@/lib/dish-images';
 
 const LOGO = 'https://raj-delight-three.vercel.app/grok_1789624913553.jpg';
 
-const imagePools: Record<string, string[]> = {
-  'Warm & Cozy': [
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=88',
-    'https://images.unsplash.com/photo-1512568400610-62da28bc8a13?auto=format&fit=crop&w=900&q=88'
-  ],
-  'Shake It Up': [
-    'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=900&q=88',
-    'https://images.unsplash.com/photo-1553787499-6f7c7f8e2c40?auto=format&fit=crop&w=900&q=88'
-  ],
-  'Fizzy Mocktails': [
-    'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=900&q=88',
-    'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=88'
-  ],
-  'Soulful Soups': ['https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=88'],
-  Lassi: ['https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=900&q=88'],
-  'Tandoori Station': [
-    'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=88',
-    'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=88'
-  ],
-  'Indian Main Course': [
-    'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=900&q=88',
-    'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=900&q=88'
-  ],
-  'Dal Delight': ['https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=900&q=88'],
-  Rice: ['https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=88'],
-  Biryani: ['https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=900&q=88'],
-  Raita: ['https://images.unsplash.com/photo-1628294895950-9805252327bc?auto=format&fit=crop&w=900&q=88'],
-  Salad: ['https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=88'],
-  'Indian Breads': [
-    'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=900&q=88',
-    'https://images.unsplash.com/photo-1626132647523-66a20f2c0b6b?auto=format&fit=crop&w=900&q=88'
-  ],
-  Paratha: ['https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=900&q=88'],
-  Papad: ['https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=900&q=88'],
-  'Chinese Appetizers': ['https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=900&q=88'],
-  Dumplings: ['https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?auto=format&fit=crop&w=900&q=88'],
-  'Saucy Delights': ['https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=900&q=88'],
-  'Chinese Cuisine': ['https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=900&q=88'],
-  'Smokey Grills': ['https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=900&q=88'],
-  Continental: ['https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=88'],
-  'Garlic Breads': ['https://images.pexels.com/photos/1117862/pexels-photo-1117862.jpeg?auto=compress&cs=tinysrgb&w=1200'],
-  'Delicious Burger': ['https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=88'],
-  'Italian Pasta': ['https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=900&q=88'],
-  Fries: ['https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=88'],
-  Sandwich: ['https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=88'],
-  'Special Thali': ['https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=900&q=88'],
-  'South Indian': ['https://images.unsplash.com/photo-1630383249896-424e482c9f4b?auto=format&fit=crop&w=900&q=88'],
-  'Street Smart': ['https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=900&q=88'],
-  Dessert: ['https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=88'],
-  'Variety Of Ice Cream': ['https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&w=900&q=88'],
-  'Kitty Menu': ['https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=900&q=88'],
-  'Navratri Food': ['https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=900&q=88'],
-  Drinks: ['https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=88'],
-};
+const SIGNATURE = [
+  ['Tandoori Paneer Tikka', 'Tandoori Station'],
+  ['Paneer Butter Masala', 'Indian Main Course'],
+  ['Dal Makhani (special)', 'Dal Delight'],
+  ['Veg Hyderabadi Biryani (special)', 'Biryani'],
+  ['Masala Dosa', 'South Indian'],
+  ['Raj Delight Delux Thali', 'Special Thali'],
+  ['Oreo Shake', 'Shake It Up'],
+  ['Gulab Jamun (1 Pc)', 'Dessert'],
+];
 
-const fallback = 'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=86';
+const QUICK = ['Paneer', 'Dosa', 'Shake', 'Momos', 'Pizza', 'Biryani', 'Dal', 'Thali'];
 
-const dishImageOverrides: Record<string, string> = {
-  'black coffee': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=88',
-  'coffee (hot)': 'https://images.unsplash.com/photo-1512568400610-62da28bc8a13?auto=format&fit=crop&w=900&q=88',
-  'cold coffee': 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=900&q=88',
-  'oreo shake': 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=900&q=88',
-  'mango shake': 'https://images.unsplash.com/photo-1577805947697-89e18249d767?auto=format&fit=crop&w=900&q=88',
-  'masala dosa': 'https://images.unsplash.com/photo-1630383249896-424e482c9f4b?auto=format&fit=crop&w=900&q=88',
-  'plain dosa': 'https://images.unsplash.com/photo-1630383249896-424e482c9f4b?auto=format&fit=crop&w=900&q=88',
-  'veg biryani': 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=900&q=88',
-  'veg hyderabadi biryani (special)': 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=900&q=88',
-  'paneer tikka pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=88',
-  'classic margherita pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=88',
-  'french fries': 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=88',
-  'veg grilled sandwich': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=88',
-  'veg fried rice': 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=900&q=88',
-  'hakka noodles': 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=900&q=88',
-  'paneer steam momos': 'https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?auto=format&fit=crop&w=900&q=88',
-  'veg steam momos': 'https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?auto=format&fit=crop&w=900&q=88',
-  'chilli paneer dry': 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=900&q=88',
-  'gulab jamun (1 pc)': 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=900&q=88',
-  'vanilla ice cream': 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&w=900&q=88',
-  'chocolate ice cream': 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&w=900&q=88',
-  'pav bhaji': 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=900&q=88'
-};
-
-function dishSeed(value: string) {
-  let hash = 2166136261;
-  for (let i = 0; i < value.length; i += 1) {
-    hash ^= value.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return Math.abs(hash);
+function Icon({ name }: { name: 'search' | 'sun' | 'moon' | 'close' | 'arrow' | 'grid' | 'list' | 'spark' | 'up' }) {
+  const p = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      {name === 'search' && (
+        <>
+          <circle {...p} cx="10.8" cy="10.8" r="6.1" />
+          <path {...p} d="m15.5 15.5 4.2 4.2" />
+        </>
+      )}
+      {name === 'sun' && (
+        <>
+          <circle {...p} cx="12" cy="12" r="3.5" />
+          <path {...p} d="M12 2.4v2.2M12 19.4v2.2M2.4 12h2.2M19.4 12h2.2M5.3 5.3 6.9 6.9M17.1 17.1l1.6 1.6M18.7 5.3 17.1 6.9M6.9 17.1l-1.6 1.6" />
+        </>
+      )}
+      {name === 'moon' && <path {...p} d="M19.4 14.6A7.8 7.8 0 0 1 9.4 4.6 8.1 8.1 0 1 0 19.4 14.6Z" />}
+      {name === 'close' && <path {...p} d="m7 7 10 10M17 7 7 17" />}
+      {name === 'arrow' && <path {...p} d="M5 19 19 5M9 5h10v10" />}
+      {name === 'grid' && (
+        <>
+          <rect {...p} x="4" y="4" width="6" height="6" rx="1" />
+          <rect {...p} x="14" y="4" width="6" height="6" rx="1" />
+          <rect {...p} x="4" y="14" width="6" height="6" rx="1" />
+          <rect {...p} x="14" y="14" width="6" height="6" rx="1" />
+        </>
+      )}
+      {name === 'list' && <path {...p} d="M5 6h14M5 12h14M5 18h14" />}
+      {name === 'spark' && <path {...p} d="M12 3.2 13.6 8.4 19 10 13.6 11.6 12 16.8 10.4 11.6 5 10 10.4 8.4Z" />}
+      {name === 'up' && <path {...p} d="M12 19V5M6 11l6-6 6 6" />}
+    </svg>
+  );
 }
 
-function fallbackImage(category: string, item: string) {
-  const label = encodeURIComponent(item);
-  const cat = encodeURIComponent(category);
-  const svg =
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700">' +
-    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0" stop-color="#e9dcc6"/><stop offset="1" stop-color="#b88a43"/>' +
-    '</linearGradient></defs>' +
-    '<rect width="900" height="700" fill="url(#g)"/>' +
-    '<circle cx="450" cy="300" r="190" fill="#fff8ec" opacity=".9"/>' +
-    '<circle cx="450" cy="300" r="150" fill="#eadbc4" opacity=".85"/>' +
-    '<text x="450" y="285" text-anchor="middle" font-family="Georgia,serif" font-size="42" font-weight="700" fill="#171310">' +
-    label +
-    '</text>' +
-    '<text x="450" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" letter-spacing="4" fill="#6f6355">' +
-    cat.toUpperCase() +
-    '</text></svg>';
-  return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+function Price({ value }: { value: number | null }) {
+  if (value === null) return <strong className="price price--empty">Ask</strong>;
+  return <strong className="price">₹{value}</strong>;
 }
 
-function imageFor(category: string, item: string, index: number) {
-  const override = dishImageOverrides[item.toLowerCase()];
-  if (override) return override;
+function DishPhoto({ category, name, eager = false }: { category: string; name: string; eager?: boolean }) {
+  const [src, setSrc] = useState(() => dishImage(category, name));
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  const seed = dishSeed(category + ':' + item + ':' + index);
-  const prompt = [
-    'premium editorial restaurant food photography',
-    'single plated vegetarian Indian dish',
-    item,
-    category,
-    'authentic edible food, realistic texture, natural restaurant lighting',
-    'warm cream and subtle gold color mood',
-    'clean luxury menu photography, no text, no people, no logos'
-  ].join(', ');
-
-  return 'https://image.pollinations.ai/prompt/' +
-    encodeURIComponent(prompt) +
-    '?width=900&height=700&seed=' + seed + '&nologo=true';
-}
-
-function Icon({name}:{name:'search'|'sun'|'moon'|'close'|'arrow'|'grid'|'list'}) {
-  const p={fill:'none',stroke:'currentColor',strokeWidth:1.7,strokeLinecap:'round' as const,strokeLinejoin:'round' as const};
-  return <svg viewBox="0 0 24 24" aria-hidden="true">
-    {name==='search' && <><circle {...p} cx="10.8" cy="10.8" r="6.1"/><path {...p} d="m15.5 15.5 4.2 4.2"/></>}
-    {name==='sun' && <><circle {...p} cx="12" cy="12" r="3.5"/><path {...p} d="M12 2.4v2.2M12 19.4v2.2M2.4 12h2.2M19.4 12h2.2M5.3 5.3 6.9 6.9M17.1 17.1l1.6 1.6M18.7 5.3 17.1 6.9M6.9 17.1l-1.6 1.6"/></>}
-    {name==='moon' && <path {...p} d="M19.4 14.6A7.8 7.8 0 0 1 9.4 4.6 8.1 8.1 0 1 0 19.4 14.6Z"/>}
-    {name==='close' && <path {...p} d="m7 7 10 10M17 7 7 17"/>}
-    {name==='arrow' && <path {...p} d="M5 19 19 5M9 5h10v10"/>}
-    {name==='grid' && <><rect {...p} x="4" y="4" width="6" height="6" rx="1"/><rect {...p} x="14" y="4" width="6" height="6" rx="1"/><rect {...p} x="4" y="14" width="6" height="6" rx="1"/><rect {...p} x="14" y="14" width="6" height="6" rx="1"/></>}
-    {name==='list' && <><path {...p} d="M5 6h14M5 12h14M5 18h14"/></>}
-  </svg>;
-}
-
-export function MenuExperience(){
-  const [intro,setIntro]=useState(true);
-  const [theme,setTheme]=useState<'light'|'dark'>('light');
-  const [query,setQuery]=useState('');
-  const [category,setCategory]=useState('All');
-  const [view,setView]=useState<'grid'|'list'>('grid');
-  const [showAllCategories,setShowAllCategories]=useState(false);
-
-  useEffect(()=>{
-    const saved=localStorage.getItem('raj-delight-menu-theme');
-    if(saved==='dark'||saved==='light') setTheme(saved);
-    else if(window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
-    const timer=window.setTimeout(()=>setIntro(false),1800);
-    return ()=>window.clearTimeout(timer);
-  },[]);
-
-  useEffect(()=>{
-    document.documentElement.dataset.theme=theme;
-    localStorage.setItem('raj-delight-menu-theme',theme);
-  },[theme]);
-
-  const visible=useMemo(()=>{
-    const q=query.trim().toLowerCase();
-    return allMenuItems.filter(item=>{
-      const categoryMatch=category==='All'||item.category===category;
-      const queryMatch=!q||(item.name+' '+item.category).toLowerCase().includes(q);
-      return categoryMatch&&queryMatch;
-    });
-  },[query,category]);
-
-  const categories=query.trim()
-    ? menuCategories.filter(entry=>visible.some(item=>item.category===entry.name))
-    : menuCategories;
-  const shownCategories=showAllCategories||query.trim()?categories:categories.slice(0,11);
-  const scrollToMenu=()=>document.getElementById('menu-list')?.scrollIntoView({behavior:'smooth',block:'start'});
-
-  return <>
-    <div className={`intro ${intro?'intro--visible':'intro--gone'}`} aria-hidden={!intro}>
-      <div className="intro__glow"/>
-      <div className="intro__seal"><img src={LOGO} alt=""/></div>
-      <div className="intro__rule"/>
-      <p>RAJ DELIGHT</p>
-      <span>CHANDAUSI · VEGETARIAN RESTAURANT</span>
+  return (
+    <div className={`dishPhoto${ready ? ' is-ready' : ''}${failed ? ' is-plain' : ''}`}>
+      {!failed && (
+        <img
+          src={src}
+          alt={name}
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+          onLoad={() => setReady(true)}
+          onError={() => {
+            if (src !== dishImage('Fallback', name)) {
+              setSrc(dishImage('Fallback', name));
+              return;
+            }
+            setFailed(true);
+          }}
+        />
+      )}
+      <span className="dishPhoto__glow" />
     </div>
+  );
+}
 
-    <main className="app">
-      <header className="topbar">
-        <button className="brand" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} aria-label="Back to top">
-          <img src={LOGO} alt="Raj Delight logo"/>
-          <span><strong>Raj Delight</strong><small>Chandausi · Vegetarian Menu</small></span>
-        </button>
-        <div className="topbar__actions">
-          <button className="iconButton" onClick={()=>setTheme(v=>v==='light'?'dark':'light')} aria-label={theme==='light'?'Enable dark mode':'Enable light mode'} title={theme==='light'?'Dark mode':'Light mode'}>
-            <Icon name={theme==='light'?'moon':'sun'}/>
+function DishCard({ category, name, index }: { category: string; name: string; index: number }) {
+  const price = getMenuPrice(category, name);
+  return (
+    <article className="dishCard" style={{ '--delay': `${Math.min(index, 10) * 35}ms` } as React.CSSProperties}>
+      <DishPhoto category={category} name={name} />
+      <div className="dishCard__body">
+        <div className="dishCard__title">
+          <small>{category}</small>
+          <h3>{name}</h3>
+        </div>
+        <Price value={price} />
+      </div>
+    </article>
+  );
+}
+
+export function MenuExperience() {
+  const [intro, setIntro] = useState(true);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('All');
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [showTop, setShowTop] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('raj-delight-menu-theme');
+    if (saved === 'dark' || saved === 'light') setTheme(saved);
+    else if (window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
+    if (window.matchMedia('(max-width: 720px)').matches) setView('grid');
+    const timer = window.setTimeout(() => setIntro(false), 2200);
+    const onScroll = () => setShowTop(window.scrollY > 640);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('raj-delight-menu-theme', theme);
+  }, [theme]);
+
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return allMenuItems.filter((item) => {
+      const categoryMatch = category === 'All' || item.category === category;
+      const queryMatch = !q || (item.name + ' ' + item.category).toLowerCase().includes(q);
+      return categoryMatch && queryMatch;
+    });
+  }, [query, category]);
+
+  const categories = query.trim()
+    ? menuCategories.filter((entry) => visible.some((item) => item.category === entry.name))
+    : menuCategories;
+  const shownCategories = showAllCategories || query.trim() ? categories : categories.slice(0, 10);
+  const filtered = query.trim() || category !== 'All';
+  const scrollToMenu = () => document.getElementById('menu-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  return (
+    <>
+      <div className={`intro ${intro ? 'intro--visible' : 'intro--gone'}`} aria-hidden={!intro}>
+        <div className="intro__glow" />
+        <div className="intro__orbs" aria-hidden="true">
+          <i />+          <i />
+          <i />
+        </div>
+        <div className="intro__seal">
+          <img src={LOGO} alt="" />
+        </div>
+        <p className="intro__welcome">Welcome</p>
+        <p className="intro__name">RAJ DELIGHT</p>
+        <span>CHANDAUSI · VEGETARIAN RESTAURANT</span>
+      </div>
+
+      <main className="app">
+        <header className="topbar">
+          <button className="brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">
+            <img src={LOGO} alt="Raj Delight logo" />
+            <span>
+              <strong>Raj Delight</strong>
+              <small>Chandausi · Vegetarian Menu</small>
+            </span>
           </button>
-          <button className="viewButton" onClick={()=>setView(v=>v==='grid'?'list':'grid')} aria-label={view==='grid'?'Switch to list view':'Switch to grid view'}>
-            <Icon name={view==='grid'?'list':'grid'}/><span>{view==='grid'?'List':'Grid'}</span>
+          <div className="topbar__actions">
+            <button
+              className="iconButton"
+              onClick={() => setTheme((v) => (v === 'light' ? 'dark' : 'light'))}
+              aria-label={theme === 'light' ? 'Enable dark mode' : 'Enable light mode'}
+            >
+              <Icon name={theme === 'light' ? 'moon' : 'sun'} />
+            </button>
+            <button className="viewButton" onClick={() => setView((v) => (v === 'grid' ? 'list' : 'grid'))} aria-label="Toggle layout">
+              <Icon name={view === 'grid' ? 'list' : 'grid'} />
+              <span>{view === 'grid' ? 'List' : 'Grid'}</span>
+            </button>
+          </div>
+        </header>
+
+        <section className="hero">
+          <div className="hero__copy">
+            <p className="eyebrow">
+              <Icon name="spark" /> The complete vegetarian menu
+            </p>
+            <h1>
+              Flavours of
+              <em> Raj Delight.</em>
+            </h1>
+            <p className="hero__meta">
+              {menuItemCount} dishes · {menuCategories.length} categories · Chandausi
+            </p>
+          </div>
+          <button className="scrollCard" onClick={scrollToMenu}>
+            <span className="scrollCard__mark">₹</span>
+            <span>
+              <small>Open menu</small>
+              <strong>Browse every dish</strong>
+            </span>
+            <Icon name="arrow" />
           </button>
-        </div>
-      </header>
+        </section>
 
-      <section className="menuIntro">
-        <div className="menuIntro__copy">
-          <p className="eyebrow">THE COMPLETE MENU</p>
-          <h1>Everything on the <em>table.</em></h1>
-          <p>{menuItemCount} dishes · {menuCategories.length} categories · vegetarian kitchen</p>
-        </div>
-        <button className="scrollCard" onClick={scrollToMenu}>
-          <span className="scrollCard__mark">₹</span>
-          <span><small>MENU BOOK</small><strong>Explore the complete menu</strong></span>
-          <Icon name="arrow"/>
-        </button>
-      </section>
-
-      <section className="controls" aria-label="Menu filters">
-        <label className="search">
-          <Icon name="search"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search dishes or categories" aria-label="Search dishes or categories"/>
-          {query&&<button type="button" className="searchClear" onClick={()=>setQuery('')} aria-label="Clear search"><Icon name="close"/></button>}
-        </label>
-        <div className="categoryRail">
-          <button className={category==='All'?'chip chip--active':'chip'} onClick={()=>setCategory('All')}>All <b>{menuItemCount}</b></button>
-          {shownCategories.map(entry=><button key={entry.name} className={category===entry.name?'chip chip--active':'chip'} onClick={()=>setCategory(entry.name)}>{entry.name} <b>{entry.items.length}</b></button>)}
-          {categories.length>11&&!query.trim()&&<button className="chip chip--more" onClick={()=>setShowAllCategories(v=>!v)}>{showAllCategories?'Show less':`+{categories.length-11} more`}</button>}
-        </div>
-        <div className="controls__meta"><span>{visible.length} dishes shown</span><span>Prices shown in ₹</span></div>
-      </section>
-
-      <section id="menu-list" className={`menuList menuList--${view}`}>
-        {query.trim()||category!=='All' ? (
-          <div className="filtered">
-            {visible.map((item,index)=>{
-              const price=getMenuPrice(item.category,item.name);
-              return <article className="dishCard" key={`${item.category}-${item.name}`}>
-                <div className="dishCard__media"><img src={imageFor(item.category,item.name,index)} alt={item.name} loading="lazy" decoding="async" onError={(event) => {
-  const target = event.currentTarget;
-  if (target.dataset.fallbackApplied) return;
-  target.dataset.fallbackApplied = 'true';
-  target.src = fallbackImage(item.category, item.name);
-}}/><span>{item.category}</span></div>
-                <div className="dishCard__body"><div className="dishCard__title"><small>{item.category}</small><h2>{item.name}</h2></div><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
-              </article>;
+        <section className="signature" aria-label="Signature dishes">
+          <div className="signature__head">
+            <p>House favourites</p>
+            <h2>Start with these.</h2>
+          </div>
+          <div className="signature__rail">
+            {SIGNATURE.map(([name, cat], index) => {
+              const price = getMenuPrice(cat, name);
+              return (
+                <button key={name} className="sigCard" onClick={() => setCategory(cat)} style={{ '--delay': `${index * 70}ms` } as React.CSSProperties}>
+                  <DishPhoto category={cat} name={name} eager={index < 4} />
+                  <div>
+                    <small>{cat}</small>
+                    <strong>{name}</strong>
+                    <span>{price === null ? 'Ask in house' : `₹${price}`}</span>
+                  </div>
+                </button>
+              );
             })}
           </div>
-        ) : (
-          menuCategories.map((entry,categoryIndex)=>(
-            <section className="categorySection" key={entry.name}>
-              <div className="categoryHead">
-                <div><span>{String(categoryIndex+1).padStart(2,'0')}</span><div><p>{entry.items.length} dishes</p><h2>{entry.name}</h2></div></div>
-                <button onClick={()=>setCategory(entry.name)}>Browse <Icon name="arrow"/></button>
-              </div>
-              <div className="dishGrid">
-                {entry.items.map((name,index)=>{
-                  const price=getMenuPrice(entry.name,name);
-                  return <article className="dishCard" key={`${entry.name}-${name}`} style={{'--delay':`${Math.min(index,14)*18}ms`} as React.CSSProperties}>
-                    <div className="dishCard__media"><img src={imageFor(entry.name,name,index)} alt={name} loading="lazy" decoding="async" onError={(event) => {
-                      const target = event.currentTarget;
-                      if (target.dataset.fallbackApplied) return;
-                      target.dataset.fallbackApplied = 'true';
-                      target.src = fallbackImage(entry.name, name);
-                    }}/><span>{entry.name}</span></div>
-                    <div className="dishCard__body"><div className="dishCard__title"><h3>{name}</h3></div><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
-                  </article>;
-                })}
-              </div>
-            </section>
-          ))
+        </section>
+
+        <section className="controls" aria-label="Menu filters">
+          <label className="search">
+            <Icon name="search" />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search paneer, dosa, shake…" aria-label="Search dishes" />
+            {query && (
+              <button type="button" className="searchClear" onClick={() => setQuery('')} aria-label="Clear search">
+                <Icon name="close" />
+              </button>
+            )}
+          </label>
+          <div className="quickSearch" aria-label="Popular searches">
+            {QUICK.map((term) => (
+              <button key={term} className={query.toLowerCase() === term.toLowerCase() ? 'quickChip is-on' : 'quickChip'} onClick={() => setQuery(term)}>
+                {term}
+              </button>
+            ))}
+          </div>
+          <div className="categoryRail">
+            <button className={category === 'All' ? 'chip chip--active' : 'chip'} onClick={() => setCategory('All')}>
+              All <b>{menuItemCount}</b>
+            </button>
+            {shownCategories.map((entry) => (
+              <button key={entry.name} className={category === entry.name ? 'chip chip--active' : 'chip'} onClick={() => setCategory(entry.name)}>
+                {entry.name} <b>{entry.items.length}</b>
+              </button>
+            ))}
+            {categories.length > 10 && !query.trim() && (
+              <button className="chip chip--more" onClick={() => setShowAllCategories((v) => !v)}>
+                {showAllCategories ? 'Show less' : `+${categories.length - 10} more`}
+              </button>
+            )}
+          </div>
+          <div className="controls__meta">
+            <span>{visible.length} dishes shown</span>
+            <span>Prices in ₹ · veg kitchen</span>
+          </div>
+        </section>
+
+        <section id="menu-list" className={`menuList menuList--${view}`}>
+          {filtered ? (
+            <div className="filtered">
+              {visible.map((item, index) => (
+                <DishCard key={`${item.category}-${item.name}`} category={item.category} name={item.name} index={index} />
+              ))}
+            </div>
+          ) : (
+            menuCategories.map((entry, categoryIndex) => (
+              <section className="categorySection" key={entry.name}>
+                <div className="categoryHead">
+                  <div>
+                    <span>{String(categoryIndex + 1).padStart(2, '0')}</span>
+                    <div>
+                      <p>{entry.items.length} dishes</p>
+                      <h2>{entry.name}</h2>
+                    </div>
+                  </div>
+                  <button onClick={() => setCategory(entry.name)}>
+                    View all <Icon name="arrow" />
+                  </button>
+                </div>
+                <div className="dishGrid">
+                  {entry.items.map((name, index) => (
+                    <DishCard key={`${entry.name}-${name}`} category={entry.name} name={name} index={index} />
+                  ))}
+                </div>
+              </section>
+            ))
+          )}
+        </section>
+
+        {visible.length === 0 && (
+          <div className="empty">
+            <strong>No dishes found.</strong>
+            <p>Try another name or reset the filters.</p>
+            <button
+              onClick={() => {
+                setQuery('');
+                setCategory('All');
+              }}
+            >
+              Reset menu
+            </button>
+          </div>
         )}
-      </section>
 
-      {visible.length===0&&<div className="empty"><strong>No dishes found.</strong><p>Try another dish or category.</p><button onClick={()=>{setQuery('');setCategory('All')}}>Reset menu</button></div>}
+        <footer className="footer">
+          <img src={LOGO} alt="Raj Delight logo" />
+          <div>
+            <strong>Raj Delight</strong>
+            <small>Complete vegetarian menu · Chandausi</small>
+          </div>
+          <span>© {new Date().getFullYear()} Raj Delight</span>
+        </footer>
+      </main>
 
-      <footer className="footer"><img src={LOGO} alt="Raj Delight logo"/><div><strong>Raj Delight</strong><small>Complete vegetarian menu · Chandausi</small></div><span>© {new Date().getFullYear()} Raj Delight</span></footer>
-    </main>
-  </>;
+      <button
+        className={`toTop${showTop ? ' is-on' : ''}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Back to top"
+      >
+        <Icon name="up" />
+      </button>
+    </>
+  );
 }
+
