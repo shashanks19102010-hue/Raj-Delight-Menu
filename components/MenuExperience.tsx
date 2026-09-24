@@ -61,13 +61,62 @@ const imagePools: Record<string, string[]> = {
   Drinks: ['https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=88'],
 };
 
-const fallback = 'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=80';
+const fallback = 'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=86';
+
+const dishImageOverrides: Record<string, string> = {
+  'black coffee': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=88',
+  'coffee (hot)': 'https://images.unsplash.com/photo-1512568400610-62da28bc8a13?auto=format&fit=crop&w=900&q=88',
+  'cold coffee': 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=900&q=88',
+  'oreo shake': 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=900&q=88',
+  'mango shake': 'https://images.unsplash.com/photo-1577805947697-89e18249d767?auto=format&fit=crop&w=900&q=88',
+  'masala dosa': 'https://images.unsplash.com/photo-1630383249896-424e482c9f4b?auto=format&fit=crop&w=900&q=88',
+  'plain dosa': 'https://images.unsplash.com/photo-1630383249896-424e482c9f4b?auto=format&fit=crop&w=900&q=88',
+  'veg biryani': 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=900&q=88',
+  'veg hyderabadi biryani (special)': 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=900&q=88',
+  'paneer tikka pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=88',
+  'classic margherita pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=88',
+  'french fries': 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=88',
+  'veg grilled sandwich': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=88',
+  'veg fried rice': 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=900&q=88',
+  'hakka noodles': 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=900&q=88',
+  'paneer steam momos': 'https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?auto=format&fit=crop&w=900&q=88',
+  'veg steam momos': 'https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?auto=format&fit=crop&w=900&q=88',
+  'chilli paneer dry': 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=900&q=88',
+  'gulab jamun (1 pc)': 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=900&q=88',
+  'vanilla ice cream': 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&w=900&q=88',
+  'chocolate ice cream': 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&w=900&q=88',
+  'pav bhaji': 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=900&q=88'
+};
+
+function fallbackImage(category: string, item: string) {
+  const label = encodeURIComponent(item);
+  const cat = encodeURIComponent(category);
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#e9dcc6"/><stop offset="1" stop-color="#b88a43"/>
+        </linearGradient>
+      </defs>
+      <rect width="900" height="700" fill="url(#g)"/>
+      <circle cx="450" cy="300" r="190" fill="#fff8ec" opacity=".9"/>
+      <circle cx="450" cy="300" r="150" fill="#eadbc4" opacity=".85"/>
+      <text x="450" y="285" text-anchor="middle" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#171310">${label}</text>
+      <text x="450" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" letter-spacing="4" fill="#6f6355">${cat.toUpperCase()}</text>
+      <path d="M110 590h680" stroke="#fff8ec" stroke-width="3" opacity=".7"/>
+    </svg>`
+  )}`;
+}
 
 function imageFor(category: string, item: string, index: number) {
-  // Keep curated category photography as a graceful fallback, but ask the image
-  // service for the actual dish name first so every menu row gets a unique visual.
-  const query = encodeURIComponent(`${item} ${category} vegetarian food`);
-  return `https://loremflickr.com/900/700/${query}?lock=${index}`;
+  const override = dishImageOverrides[item.toLowerCase()];
+  if (override) return override;
+
+  const pool = imagePools[category] ?? [fallback];
+  // Deterministic variation across the category pool so nearby dishes don't all
+  // show the exact same crop when multiple curated images exist.
+  const seed = [...item].reduce((sum, char) => sum + char.charCodeAt(0), index);
+  return pool[seed % pool.length] ?? fallback;
 }
 
 function Icon({name}:{name:'search'|'sun'|'moon'|'close'|'arrow'|'grid'|'list'}) {
@@ -180,9 +229,9 @@ export function MenuExperience(){
   const target = event.currentTarget;
   if (target.dataset.fallbackApplied) return;
   target.dataset.fallbackApplied = 'true';
-  target.src = fallback;
+  target.src = fallbackImage(item.category, item.name);
 }}/><span>{item.category}</span></div>
-                <div className="dishCard__body"><div><small>{item.category}</small><h2>{item.name}</h2></div><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
+                <div className="dishCard__body"><div className="dishCard__title"><small>{item.category}</small><h2>{item.name}</h2></div><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
               </article>;
             })}
           </div>
@@ -201,9 +250,9 @@ export function MenuExperience(){
                       const target = event.currentTarget;
                       if (target.dataset.fallbackApplied) return;
                       target.dataset.fallbackApplied = 'true';
-                      target.src = fallback;
+                      target.src = fallbackImage(entry.name, name);
                     }}/><span>{entry.name}</span></div>
-                    <div className="dishCard__body"><h3>{name}</h3><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
+                    <div className="dishCard__body"><div className="dishCard__title"><h3>{name}</h3></div><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
                   </article>;
                 })}
               </div>
