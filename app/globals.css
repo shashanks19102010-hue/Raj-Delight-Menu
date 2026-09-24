@@ -69,3 +69,51 @@ button,input{font:inherit}button{cursor:pointer}img{display:block;max-width:100%
   .dishCard__media{aspect-ratio:1.28/1}
   .dishCard__body{min-height:86px}
 }
+
+
+/* Premium menu card correction: never clip the price rail on narrow cards. */
+.dishCard__body{
+  position:relative;
+  display:flex !important;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-width:0;
+}
+.dishCard__title{
+  flex:1 1 auto;
+  min-width:0;
+  padding-right:2px;
+}
+.dishCard__title h2,.dishCard__title h3{
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+.price{
+  position:relative !important;
+  inset:auto !important;
+  flex:0 0 auto !important;
+  min-width:58px !important;
+  max-width:86px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  z-index:3;
+}
+.dishCard__media{
+  isolation:isolate;
+}
+.dishCard__media img{
+  background:linear-gradient(135deg,var(--surface-2),var(--surface));
+}
+@media(max-width:600px){
+  .dishCard__body{min-height:92px !important;padding:11px !important;gap:7px}
+  .dishCard__title h2,.dishCard__title h3{font-size:14px !important;line-height:1.12 !important}
+  .price{min-width:55px !important;max-width:72px;padding:7px 7px !important;font-size:9px !important}
+  .dishCard{box-shadow:0 10px 28px rgba(28,18,8,.055)}
+  .dishCard:hover{transform:translateY(-5px)}
+}
