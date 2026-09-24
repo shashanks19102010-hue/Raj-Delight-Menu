@@ -100,27 +100,28 @@ function dishSeed(value: string) {
 function fallbackImage(category: string, item: string) {
   const label = encodeURIComponent(item);
   const cat = encodeURIComponent(category);
-  return \`data:image/svg+xml;charset=UTF-8,\${encodeURIComponent(
-    \`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700">
-      <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#e9dcc6"/><stop offset="1" stop-color="#b88a43"/>
-        </linearGradient>
-      </defs>
-      <rect width="900" height="700" fill="url(#g)"/>
-      <circle cx="450" cy="300" r="190" fill="#fff8ec" opacity=".9"/>
-      <circle cx="450" cy="300" r="150" fill="#eadbc4" opacity=".85"/>
-      <text x="450" y="285" text-anchor="middle" font-family="Georgia,serif" font-size="42" font-weight="700" fill="#171310">\${label}</text>
-      <text x="450" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" letter-spacing="4" fill="#6f6355">\${cat.toUpperCase()}</text>
-    </svg>\`
-  )}\`;
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700">' +
+    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" stop-color="#e9dcc6"/><stop offset="1" stop-color="#b88a43"/>' +
+    '</linearGradient></defs>' +
+    '<rect width="900" height="700" fill="url(#g)"/>' +
+    '<circle cx="450" cy="300" r="190" fill="#fff8ec" opacity=".9"/>' +
+    '<circle cx="450" cy="300" r="150" fill="#eadbc4" opacity=".85"/>' +
+    '<text x="450" y="285" text-anchor="middle" font-family="Georgia,serif" font-size="42" font-weight="700" fill="#171310">' +
+    label +
+    '</text>' +
+    '<text x="450" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" letter-spacing="4" fill="#6f6355">' +
+    cat.toUpperCase() +
+    '</text></svg>';
+  return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
 }
 
 function imageFor(category: string, item: string, index: number) {
   const override = dishImageOverrides[item.toLowerCase()];
   if (override) return override;
 
-  const seed = dishSeed(\`\${category}:\${item}:\${index}\`);
+  const seed = dishSeed(category + ':' + item + ':' + index);
   const prompt = [
     'premium editorial restaurant food photography',
     'single plated vegetarian Indian dish',
@@ -131,7 +132,9 @@ function imageFor(category: string, item: string, index: number) {
     'clean luxury menu photography, no text, no people, no logos'
   ].join(', ');
 
-  return \`https://image.pollinations.ai/prompt/\${encodeURIComponent(prompt)}?width=900&height=700&seed=\${seed}&nologo=true\`;
+  return 'https://image.pollinations.ai/prompt/' +
+    encodeURIComponent(prompt) +
+    '?width=900&height=700&seed=' + seed + '&nologo=true';
 }
 
 function Icon({name}:{name:'search'|'sun'|'moon'|'close'|'arrow'|'grid'|'list'}) {
