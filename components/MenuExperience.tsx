@@ -182,7 +182,8 @@ export function MenuExperience() {
       <div className={`intro ${intro ? 'intro--visible' : 'intro--gone'}`} aria-hidden={!intro}>
         <div className="intro__glow" />
         <div className="intro__orbs" aria-hidden="true">
-          <i />+          <i />
+          <i />
+          <i />
           <i />
         </div>
         <div className="intro__seal">
