@@ -118,7 +118,7 @@ export function MenuExperience(){
   const scrollToMenu=()=>document.getElementById('menu-list')?.scrollIntoView({behavior:'smooth',block:'start'});
 
   return <>
-    <div className={\`intro \${intro?'intro--visible':'intro--gone'}\`} aria-hidden={!intro}>
+    <div className={`intro ${intro?'intro--visible':'intro--gone'}`} aria-hidden={!intro}>
       <div className="intro__glow"/>
       <div className="intro__seal"><img src={LOGO} alt=""/></div>
       <div className="intro__rule"/>
@@ -163,19 +163,19 @@ export function MenuExperience(){
         <div className="categoryRail">
           <button className={category==='All'?'chip chip--active':'chip'} onClick={()=>setCategory('All')}>All <b>{menuItemCount}</b></button>
           {shownCategories.map(entry=><button key={entry.name} className={category===entry.name?'chip chip--active':'chip'} onClick={()=>setCategory(entry.name)}>{entry.name} <b>{entry.items.length}</b></button>)}
-          {categories.length>11&&!query.trim()&&<button className="chip chip--more" onClick={()=>setShowAllCategories(v=>!v)}>{showAllCategories?'Show less':\`+{categories.length-11} more\`}</button>}
+          {categories.length>11&&!query.trim()&&<button className="chip chip--more" onClick={()=>setShowAllCategories(v=>!v)}>{showAllCategories?'Show less':`+{categories.length-11} more`}</button>}
         </div>
         <div className="controls__meta"><span>{visible.length} dishes shown</span><span>Prices shown in ₹</span></div>
       </section>
 
-      <section id="menu-list" className={\`menuList menuList--\${view}\`}>
+      <section id="menu-list" className={`menuList menuList--${view}`}>
         {query.trim()||category!=='All' ? (
           <div className="filtered">
             {visible.map((item,index)=>{
               const price=getMenuPrice(item.category,item.name);
-              return <article className="dishCard" key={\`\${item.category}-\${item.name}\`}>
+              return <article className="dishCard" key={`${item.category}-${item.name}`}>
                 <div className="dishCard__media"><img src={imageFor(item.category,index)} alt={item.name} loading="lazy"/><span>{item.category}</span></div>
-                <div className="dishCard__body"><div><small>{item.category}</small><h2>{item.name}</h2></div><strong className="price">{price===null?'Price not listed':\`₹\${price}\`}</strong></div>
+                <div className="dishCard__body"><div><small>{item.category}</small><h2>{item.name}</h2></div><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
               </article>;
             })}
           </div>
@@ -189,9 +189,9 @@ export function MenuExperience(){
               <div className="dishGrid">
                 {entry.items.map((name,index)=>{
                   const price=getMenuPrice(entry.name,name);
-                  return <article className="dishCard" key={\`\${entry.name}-\${name}\`} style={{'--delay':\`\${Math.min(index,14)*18}ms\`} as React.CSSProperties}>
+                  return <article className="dishCard" key={`${entry.name}-${name}`} style={{'--delay':`${Math.min(index,14)*18}ms`} as React.CSSProperties}>
                     <div className="dishCard__media"><img src={imageFor(entry.name,index)} alt={name} loading="lazy"/><span>{entry.name}</span></div>
-                    <div className="dishCard__body"><h3>{name}</h3><strong className="price">{price===null?'Price not listed':\`₹\${price}\`}</strong></div>
+                    <div className="dishCard__body"><h3>{name}</h3><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
                   </article>;
                 })}
               </div>
