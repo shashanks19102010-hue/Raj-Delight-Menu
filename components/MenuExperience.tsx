@@ -63,9 +63,11 @@ const imagePools: Record<string, string[]> = {
 
 const fallback = 'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=80';
 
-function imageFor(category: string, index: number) {
-  const pool = imagePools[category] ?? [fallback];
-  return pool[index % pool.length] ?? fallback;
+function imageFor(category: string, item: string, index: number) {
+  // Keep curated category photography as a graceful fallback, but ask the image
+  // service for the actual dish name first so every menu row gets a unique visual.
+  const query = encodeURIComponent(`${item} ${category} vegetarian food`);
+  return `https://loremflickr.com/900/700/${query}?lock=${index}`;
 }
 
 function Icon({name}:{name:'search'|'sun'|'moon'|'close'|'arrow'|'grid'|'list'}) {
@@ -174,7 +176,7 @@ export function MenuExperience(){
             {visible.map((item,index)=>{
               const price=getMenuPrice(item.category,item.name);
               return <article className="dishCard" key={`${item.category}-${item.name}`}>
-                <div className="dishCard__media"><img src={imageFor(item.category,index)} alt={item.name} loading="lazy"/><span>{item.category}</span></div>
+                <div className="dishCard__media"><img src={imageFor(item.category,item.name,index)} alt={item.name} loading="lazy"/><span>{item.category}</span></div>
                 <div className="dishCard__body"><div><small>{item.category}</small><h2>{item.name}</h2></div><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
               </article>;
             })}
@@ -190,7 +192,7 @@ export function MenuExperience(){
                 {entry.items.map((name,index)=>{
                   const price=getMenuPrice(entry.name,name);
                   return <article className="dishCard" key={`${entry.name}-${name}`} style={{'--delay':`${Math.min(index,14)*18}ms`} as React.CSSProperties}>
-                    <div className="dishCard__media"><img src={imageFor(entry.name,index)} alt={name} loading="lazy"/><span>{entry.name}</span></div>
+                    <div className="dishCard__media"><img src={imageFor(entry.name,name,index)} alt={name} loading="lazy"/><span>{entry.name}</span></div>
                     <div className="dishCard__body"><h3>{name}</h3><strong className="price">{price===null?'Price not listed':`₹${price}`}</strong></div>
                   </article>;
                 })}
